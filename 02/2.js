@@ -5,10 +5,8 @@ const Directions = {
   DECREASING: 'DECREASING'
 };
 
-function isSafe(row) {
+function isSafe(levels) {
   let direction;
-
-  const levels = row.split(' ').map(Number);
 
   for (let i = 0; i < levels.length - 1; i++) {
     let current = levels[i];
@@ -31,7 +29,17 @@ function isSafe(row) {
 function solution() {
   let input = fs.readFileSync('./02/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n');
 
-  return input.filter(isSafe).length;
+  return input.filter(row => {
+    row = row.split(' ').map(Number);
+    if (isSafe(row)) return true;
+
+    for (let i = 0; i < row.length; i++) {
+      let dampened = [...row.slice(0, i), ...row.slice(i + 1, row.length)];
+      if (isSafe(dampened)) return true;
+    }
+
+    return false;
+  }).length;
 }
 
 console.log(solution());
