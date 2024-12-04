@@ -17,26 +17,15 @@ function solution() {
   for (let i = 0; i < split.length; i++) {
     let segment = split[i];
 
-    // left most segment is do
-    if (i === 0) {
-      for (let subsegment of segment) {
+    for (let j = 0; j < segment.length; j++) {
+      // Leftmost subsegment of each segment is don't, except for the first segment
+      if (i !== 0 && j === 0) continue;
 
-        const matches = Array.from(subsegment.matchAll(pattern));
+      let subsegment = segment[j];
+      const matches = Array.from(subsegment.matchAll(pattern));
 
-        for (let [, left, right] of matches) {
-          total += Number(left) * Number(right);
-        }
-      }
-    } else {
-      // Leftmost subsegment of each segment is don't
-      for (let j = 1; j < segment.length; j++) {
-        let subsegment = segment[j];
-        const matches = Array.from(subsegment.matchAll(pattern));
-
-        for (let [, left, right] of matches) {
-          total += Number(left) * Number(right);
-        }
-
+      for (let [, left, right] of matches) {
+        total += Number(left) * Number(right);
       }
     }
   }
