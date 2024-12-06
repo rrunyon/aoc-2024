@@ -1,84 +1,64 @@
 import * as fs from 'fs';
 
 function solution() {
-  let input = fs.readFileSync('./05/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n');
+  let input = fs.readFileSync('./06/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n');
 
-  let orderingGraph = new Map;
+  let start;
+  let obstacles = new Set;
+  for (let i = 0; i < input.length; i++) {
+    for (let j = 0; j < input[0].length; j++) {
+      let cell = input[i][j];
 
-  let rules = [];
-  let updates = [];
-
-  let readingRules = true;
-  for (let line of input) {
-    if (!line) {
-      readingRules = false;
-      continue;
+      if (cell === '^') {
+        start = [i, j];
+      } else if (cell === '#') {
+        obstacles.add([i, j].join());
+      }
     }
-
-    if (readingRules) {
-      rules.push(line);
-    } else {
-      updates.push(line);
-    }
-  }
-
-  for (let rule of rules) {
-    if (!rule) break;
-
-    let [before, after] = rule.split('|');
-
-    if (!orderingGraph.has(before)) {
-      orderingGraph.set(before, new Map);
-      orderingGraph.get(before).set('before', new Set);
-      orderingGraph.get(before).set('after', new Set);
-    }
-
-    if (!orderingGraph.has(after)) {
-      orderingGraph.set(after, new Map);
-      orderingGraph.get(after).set('before', new Set);
-      orderingGraph.get(after).set('after', new Set);
-    }
-
-    orderingGraph.get(before).get('after').add(after);
-    orderingGraph.get(after).get('before').add(before);
   }
 
   let result = 0;
-  for (let update of updates) {
-    let outOfOrder = validateOrder(update, orderingGraph);
+  let dirs = [[-1, 0], [0, 1], [1, 0], [0, -1]];
 
-    if (outOfOrder) {
-      result += sortAndGetResult(update, orderingGraph);
+  for (let i = 0; i < input.length; i++) {
+    for (let j = 0; j < input[0].length; j++) {
+      let newObstacleKey = [i, j].join();
+      // Avoid testing and then removing an existing obstacle
+      if (obstacles.has(newObstacleKey)) continue;
+
+      obstacles.add(newObstacleKey);
+
+      let visited = new Set;
+      let currentDir = 0;
+      let current = start;
+      while (true) {
+        let currentKey = [...current, currentDir].join();
+
+        if (visited.has(currentKey)) {
+          result++;
+          break;
+        }
+
+        let dir = dirs[currentDir];
+        let nextI = current[0] + dir[0];
+        let nextJ = current[1] + dir[1];
+        let key = [nextI, nextJ].join();
+
+        if (nextI < 0 || nextI >= input.length || nextJ < 0 || nextJ >= input[0].length) {
+          break;
+        } else if (obstacles.has(key)) {
+          currentDir = (currentDir + 1) % 4
+        } else {
+          visited.add(currentKey)
+          current = [nextI, nextJ];
+        }
+      }
+
+      obstacles.delete(newObstacleKey);
     }
   }
 
   return result;
-}
-
-function validateOrder(update, orderingGraph) {
-    let pages = update.split(',');
-
-    for (let i = 0; i < pages.length - 1; i++) {
-      let current = pages[i];
-      let next = pages[i+1];
-
-      if (!orderingGraph.get(current).get('after').has(next)) return true;
-    }
-
-    return false;
-}
-
-function sortAndGetResult(update, orderingGraph) {
-    let pages = update.split(',');
-
-    pages.sort((a, b) => {
-      if (orderingGraph.get(a).get('after').has(b)) return -1;
-      if (orderingGraph.get(a).get('before').has(b)) return 1;
-
-      return 0;
-    });
-
-    return Number(pages[Math.floor(pages.length / 2)]);
 }
 
 console.log(solution());
