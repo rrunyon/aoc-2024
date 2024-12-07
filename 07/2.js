@@ -25,10 +25,11 @@ function solution() {
     }
 
     let currentOperand = operands[index];
-    let left = validate(equation, index + 1, total + currentOperand)
-    let right = validate(equation, index + 1, total * currentOperand)
+    let add = validate(equation, index + 1, total + currentOperand)
+    let multiply = validate(equation, index + 1, total * currentOperand)
+    let concatenate = validate(equation, index + 1, Number(String(total) + String(currentOperand)))
 
-    return Math.max(left, right)
+    return Math.max(add, multiply, concatenate)
   }
 }
 
