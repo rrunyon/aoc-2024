@@ -1,35 +1,65 @@
 import * as fs from 'fs';
 
 function solution() {
-  let input = fs.readFileSync('./07/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n');
+  const input = fs.readFileSync('./08/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n');
 
-  let equations = [];
-  for (let row of input) {
-    let [testValue, operands] = row.split(': ');
-    testValue = Number(testValue);
-    operands = operands.split(' ').map(Number);
-    equations.push({ testValue, operands });
-  }
+  const frequencyToLocationsMap = new Map;
 
-  let result = 0;
-  for (let equation of equations) {
-    result += validate(equation);
-  }
+  for (let i = 0; i < input.length; i++) {
+    for (let j = 0; j < input[0].length; j++) {
+      const cell = input[i][j];
+      if (cell === '.') continue;
 
-  return result;
-
-  function validate(equation, index = 0, total = 0) {
-    const { testValue, operands } = equation;
-    if (index === operands.length) {
-      return total === testValue ? testValue : 0;
+      if (!frequencyToLocationsMap.has(cell)) frequencyToLocationsMap.set(cell, []);
+      frequencyToLocationsMap.get(cell).push([i, j]);
     }
+  }
 
-    let currentOperand = operands[index];
-    let add = validate(equation, index + 1, total + currentOperand)
-    let multiply = validate(equation, index + 1, total * currentOperand)
-    let concatenate = validate(equation, index + 1, Number(String(total) + String(currentOperand)))
+  const antiNodes = new Set;
 
-    return Math.max(add, multiply, concatenate)
+  for (const [_frequency, locations] of frequencyToLocationsMap) {
+    for (let i = 0; i < locations.length; i++) {
+      let location1 = locations[i];
+
+      for (let j = 0; j < locations.length; j++) {
+        if (i === j) continue;
+
+        let location2 = locations[j];
+        let xDiff = location1[1] - location2[1];
+        let yDiff = location1[0] - location2[0];
+
+        let antiNode = [location1[0] + yDiff, location1[1] + xDiff];
+        while (
+          antiNode[0] >= 0
+          && antiNode[0] < input.length
+          && antiNode[1] >= 0 
+          && antiNode[1] < input[0].length
+        ) {
+          antiNodes.add(antiNode.join());
+          antiNode = [antiNode[0] + yDiff, antiNode[1] + xDiff];
+        } 
+      }
+    }
+  }
+
+  printGraph();
+  return new Set([...antiNodes, [...frequencyToLocationsMap.values()].flat().map(pair => pair.join())].flat()).size;
+
+  function printGraph() {
+    for (let i = 0; i < input.length; i++) {
+      let row = [];
+
+      for (let j = 0; j < input.length; j++) {
+        let key = [i, j].join(',');
+        if (antiNodes.has(key)) {
+          row.push('#');
+        } else {
+          row.push(input[i][j]);
+        }
+      }
+
+      console.log(row.join(''));
+    }
   }
 }
 
