@@ -28,33 +28,58 @@ function solution() {
     isFile = !isFile
   }
 
-  let left = 0;
   let right = blocks.length - 1;
+  let handlingFileId = Math.max(...blocks.filter(block => block !== '.'));
+  let leftStart = 0;
 
-  while (left !== right) {
-    let leftChar = blocks[left];
-    let rightChar = blocks[right];
+  while (handlingFileId > 0) {
+    console.log(handlingFileId);
+    // console.log(blocks.join(''));
+    // console.log()
 
-    if (leftChar !== '.') {
-      left++;
+    let handlingFileIdString = String(handlingFileId);
+    let rightEnd = right;
+
+    while (blocks[rightEnd] !== handlingFileIdString && rightEnd >= 0) rightEnd--;
+    let rightStart = rightEnd;
+    while (blocks[rightStart - 1] === handlingFileIdString && rightStart >= 0) rightStart--;
+
+    while (blocks[leftStart] !== '.' && leftStart < blocks.length) leftStart++;
+    let leftEnd = leftStart;
+    while (blocks[leftEnd + 1] === '.' && leftEnd < blocks.length) leftEnd++;
+
+    if (leftStart >= rightStart || leftEnd >= rightStart) {
+      handlingFileId--;
+      leftStart = 0;
       continue;
     }
 
-    if (rightChar === '.') {
-      right--;
-      continue;
-    }
+    let blockSize = rightEnd - rightStart + 1;
 
-    blocks[left] = blocks[right];
-    blocks[right] = '.';
-    left++;
-    right--;
+    if (blockSize <= (leftEnd - leftStart + 1)) {
+      for (let i = 0; i < blockSize; i++) {
+        blocks[leftStart + i] = handlingFileIdString;
+        blocks[rightEnd - i] = '.';
+      }
+
+      handlingFileId--;
+      leftStart = 0;
+      continue;
+    } else {
+      leftStart = leftEnd + 1;
+
+      if (leftStart >= blocks.length) {
+        handlingFileId--;
+        leftStart = 0;
+        continue;
+      }
+    }
   }
 
   let checksum = 0;
   for (let i = 0; i < blocks.length; i++) {
     let fileId = blocks[i];
-    if (fileId === '.') break;
+    if (fileId === '.') continue;
 
     checksum += i * Number(fileId);
   }
