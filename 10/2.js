@@ -26,26 +26,24 @@ function solution() {
 
   return result;
 
-  function getScore(position, currentHeight = 0, destinations = new Set) {
+  function getScore(position, currentHeight = 0) {
     const [i, j] = position;
     let positionHeight = input[i][j];
 
-    if (currentHeight !== positionHeight) return;
-    if (currentHeight === 9 && positionHeight === 9) {
-      destinations.add([i, j].join());
-      return;
-    }
+    if (currentHeight !== positionHeight) return 0;
+    if (currentHeight === 9 && positionHeight === 9) return 1;
 
+    let score = 0;
     for (const dir of dirs) {
       const newI = i + dir[0];
       const newJ = j + dir[1];
 
       if (newI >= 0 && newI < input.length && newJ >= 0 && newJ <= input[0].length) {
-        getScore([newI, newJ], currentHeight + 1, destinations);
+        score += getScore([newI, newJ], currentHeight + 1);
       }
     }
 
-    return destinations.size;
+    return score;
   }
 }
 
