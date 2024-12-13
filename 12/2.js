@@ -65,49 +65,22 @@ function solution() {
   }
 
   function countSides(region) {
-    let outside = true;
     let sides = 0;
 
-    // Left to right
-    for (let i = -1; i <= graph.length; i++) {
-      for (let j = -1; j <= graph[0].length; j++) {
-        let key = [i, j].join();
-        if (region.has(key) && outside) {
-          let topKey = [i - 1, j].join();
-          let bottomKey = [i + 1, j].join();
-          if (!region.has(topKey)) sides++;
-          if (!region.has(bottomKey)) sides++;
-          outside = false;
-        } else if (!region.has(key) && !outside) {
-          let topKey = [i - 1, j - 1].join();
-          let bottomKey = [i + 1, j - 1].join();
-          if (!region.has(topKey)) sides++;
-          if (!region.has(bottomKey)) sides++;
-          outside = true;
-        }
-      }
-    }
+    for (let plot of region) {
+      let [i, j] = plot.split(',').map(Number);
+      const [right, down, up, left, bottomRight, bottomLeft, topRight, topLeft] = [...DIRS, [1, 1], [1, -1], [-1, 1], [-1, -1]].map(dir => [i + dir[0], j + dir[1]].join());
 
-    outside = true;
-    // Top to bottom
-    for (let j = -1; j <= graph[0].length; j++) {
-      for (let i = -1; i <= graph.length; i++) {
-        let key = [i, j].join();
+      if (!region.has(up) && !region.has(left)) sides++;
+      if (!region.has(up) && !region.has(right)) sides++;
+      if (!region.has(down) && !region.has(left)) sides++;
+      if (!region.has(down) && !region.has(right)) sides++;
 
-        if (region.has(key) && outside) {
-          let leftKey = [i, j - 1].join();
-          let rightKey = [i, j + 1].join();
-          if (!region.has(leftKey)) sides++;
-          if (!region.has(rightKey)) sides++;
-          outside = false;
-        } else if (!region.has(key) && !outside) {
-          let leftKey = [i - 1, j - 1].join();
-          let rightKey = [i - 1, j + 1].join();
-          if (!region.has(leftKey)) sides++;
-          if (!region.has(rightKey)) sides++;
-          outside = true;
-        }
-      }
+      if (region.has(down) && region.has(bottomRight) && !region.has(right)) sides++;
+      if (region.has(down) && region.has(bottomLeft) && !region.has(left)) sides++;
+
+      if (region.has(up) && region.has(topRight) && !region.has(right)) sides++;
+      if (region.has(up) && region.has(topLeft) && !region.has(left)) sides++;
     }
 
     return sides;
