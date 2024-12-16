@@ -3,7 +3,7 @@ import * as fs from 'fs';
 const WIDTH = 101;
 const HEIGHT = 103;
 
-function solution() {
+async function solution() {
   const input = fs.readFileSync('./14/input.txt', { encoding: 'utf8', flag: 'r' }).split('\n')
   let robots = [];
 
@@ -23,42 +23,55 @@ function solution() {
     robot.current = robot.start;
   }
 
-  for (let i = 0; i < Infinity; i++) {
+  let arrangements = new Map;
+
+  for (let i = 0; i < 100000; i++) {
     for (let robot of robots) {
       let nextI = (robot.current.i + robot.velocity.i + HEIGHT) % HEIGHT;
       let nextJ = (robot.current.j + robot.velocity.j + WIDTH) % WIDTH;
       robot.current = { i: nextI, j: nextJ };
     }
 
-    console.log(i+1, " seconds")
-    printRobots(robots);
+    let arrangement = robots
+      .map(robot => [robot.current.i, robot.current.j])
+      .sort((a, b) => a[0] === b[0] ? a[1] - b[1] : a[0] - b[0]);
+    let key = JSON.stringify(arrangement);
+    arrangements.set(key, (arrangements.get(key) ?? 0) + 1);
+
+    // console.log(i+1, " seconds")
+    // printRobots(robots);
   }
 
-  let quadrants = [0, 0, 0, 0];
+  arrangements = Array.from(arrangements).sort((a, b) => a[1] - b[1]);
+  for (let i = 0; i < 100; i++){
+    printArrangement(arrangements[i]);
+  }
+}
 
-  for (let robot of robots) {
-    const { current } = robot;
+function printArrangement(arrangement) {
+  let robotPositions = new Map;
+  let positions = JSON.parse(arrangement[0]);
+  for (let position of positions) {
+    let key = position.join();
+    robotPositions.set(key, (robotPositions.get(key) ?? 0) + 1);
+  }
 
-    let halfWidth = (WIDTH - 1) / 2;
-    let halfHeight = (HEIGHT - 1) / 2;
+  for (let i = 0; i < HEIGHT; i++) {
+    let row = [];
+    for (let j = 0; j < WIDTH; j++) {
+      let key = [i, j].join();
 
-    if (current.i < halfHeight && current.j < halfWidth) {
-      quadrants[0]++;
-    } else if (current.i < halfHeight && current.j > halfWidth) {
-      quadrants[1]++;
-    } else if (current.i > halfHeight && current.j < halfWidth) {
-      quadrants[2]++;
-    } else if (current.i > halfHeight && current.j > halfWidth) {
-      quadrants[3]++;
+      let cell = robotPositions.get(key) ?? '.';
+      row.push(cell);
     }
+
+    console.log(row.join(''));
   }
 
-  return quadrants.reduce((a, b) => a * b);
+  console.log('\n');
 }
 
 function printRobots(robots) {
-  console.log('\n');
-
   let robotPositions = new Map;
   for (let robot of robots) {
     let key = [robot.current.i, robot.current.j].join();
@@ -76,6 +89,8 @@ function printRobots(robots) {
 
     console.log(row.join(''));
   }
+
+  console.log('\n');
 }
 
 console.log(solution());

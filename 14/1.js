@@ -57,8 +57,6 @@ function solution() {
 }
 
 function printRobots(robots) {
-  console.log('\n');
-
   let robotPositions = new Map;
   for (let robot of robots) {
     let key = [robot.current.i, robot.current.j].join();
@@ -76,6 +74,8 @@ function printRobots(robots) {
 
     console.log(row.join(''));
   }
+
+  console.log('\n');
 }
 
 console.log(solution());
