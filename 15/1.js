@@ -37,8 +37,8 @@ function solution() {
   }
 
   for (let move of moves) {
-    printGraph(graph, currentPosition);
-    console.log(move);
+    // printGraph(graph, currentPosition);
+    // console.log(move);
 
     let shift = MOVES[move];
     let nextI = currentPosition[0] + shift[0];
@@ -72,7 +72,7 @@ function solution() {
     }
   }
 
-  printGraph(graph, currentPosition);
+  // printGraph(graph, currentPosition);
   let result = 0;
 
   for (let i = 0; i < graph.length; i++) {
